@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRONEA-EVA-SAC</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .glass-card {
+      background: rgba(30, 27, 75, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e11d48; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col custom-scrollbar">
+
+  <!-- CAPA DE AUTENTICACIÓN -->
+  <div id="authOverlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-8 rounded-3xl border border-violet-500/30 shadow-2xl relative overflow-hidden">
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-violet-600/30 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-rose-600/30 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="text-center mb-8 relative z-10">
+        <div class="w-16 h-16 bg-gradient-to-tr from-violet-600 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-600/30">
+          <i data-lucide="graduation-cap" class="w-8 h-8 text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-white" id="authTitle">Iniciar Sesión</h2>
+        <p class="text-slate-400 text-sm mt-1" id="authSubtitle">Accede al Sistema Escolar PRONEA-EVA-SAC</p>
+      </div>
+
+      <form id="authForm" class="space-y-4 relative z-10" onsubmit="handleAuth(event)">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Correo Electrónico</label>
+          <input type="email" id="authEmail" required placeholder="correo@ejemplo.com" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-rose-500 transition-colors">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Contraseña</label>
+          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-rose-500 transition-colors">
+        </div>
+        <button type="submit" id="authBtn" class="w-full bg-gradient-to-r from-violet-600 to-rose-600 hover:from-violet-500 hover:to-rose-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-rose-900/20 transition-all flex items-center justify-center gap-2">
+          <span>Ingresar</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-sm text-slate-400 relative z-10">
+        <span id="authToggleText">¿No tienes cuenta?</span>
+        <button type="button" onclick="toggleAuthMode()" class="text-rose-400 font-semibold hover:underline ml-1" id="authToggleBtn">Registrarse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APLICACIÓN PRINCIPAL -->
+  <div id="mainApp" class="flex-1 flex flex-col hidden">
+    <!-- BARRA SUPERIOR -->
+    <header class="border-b border-violet-900/30 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-tr from-violet-600 to-rose-600 rounded-xl flex items-center justify-center text-white shadow-md">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-white text-lg tracking-wide">PRONEA-EVA-SAC</h1>
+            <span class="text-xs text-rose-400 font-medium">Sacatepéquez</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50">
+            <i data-lucide="user" class="w-4 h-4 text-violet-400"></i>
+            <span id="userEmail" class="text-xs text-slate-200">cargando...</span>
+            <span id="userRoleBadge" class="bg-violet-950 text-violet-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-violet-700/50 uppercase">Alumno</span>
+          </div>
+          <button onclick="logout()" class="p-2 text-slate-400 hover:text-rose-400 transition-colors" title="Cerrar Sesión">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+      <!-- NAVEGACIÓN TAB -->
+      <div class="flex items-center gap-2 border-b border-slate-800 mb-8 overflow-x-auto pb-2">
+        <button onclick="switchTab('personas')" id="tab-personas" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all bg-gradient-to-r from-violet-600 to-rose-600 text-white shadow-lg">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>Personas</span>
+        </button>
+        <button onclick="switchTab('documentos')" id="tab-documentos" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>Documentos</span>
+        </button>
+        <button onclick="switchTab('presentaciones')" id="tab-presentaciones" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+          <i data-lucide="presentation" class="w-4 h-4"></i>
+          <span>Presentaciones</span>
+        </button>
+        <button onclick="switchTab('notas')" id="tab-notas" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+          <i data-lucide="award" class="w-4 h-4"></i>
+          <span>Calificaciones</span>
+        </button>
+        <button onclick="switchTab('foro')" id="tab-foro" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
+          <span>Foro de Discusión</span>
+        </button>
+      </div>
+
+      <!-- SECCIÓN: PERSONAS -->
+      <section id="sec-personas" class="space-y-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white">Registro de Personas</h2>
+            <p class="text-sm text-slate-400">Directorio de estudiantes y miembros</p>
+          </div>
+          <button onclick="openModal('persona')" class="admin-only hidden bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nueva Persona</span>
+          </button>
+        </div>
+        <div id="grid-personas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- SECCIÓN: DOCUMENTOS -->
+      <section id="sec-documentos" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white">Documentos & Enlaces</h2>
+            <p class="text-sm text-slate-400">Recursos guardados y archivos compartidos</p>
+          </div>
+          <button onclick="openModal('documento')" class="admin-only hidden bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nuevo Documento</span>
+          </button>
+        </div>
+        <div id="grid-documentos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- SECCIÓN: PRESENTACIONES -->
+      <section id="sec-presentaciones" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white">Galería de Presentaciones</h2>
+            <p class="text-sm text-slate-400">Material audiovisual y diapositivas</p>
+          </div>
+          <button onclick="openModal('presentacion')" class="admin-only hidden bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nueva Presentación</span>
+          </button>
+        </div>
+        <div id="grid-presentaciones" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- SECCIÓN: CALIFICACIONES -->
+      <section id="sec-notas" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white" id="notasSectionTitle">Calificaciones y Evaluaciones</h2>
+            <p class="text-sm text-slate-400">Progreso semanal (Semana 1 a Semana 20)</p>
+          </div>
+          <button onclick="openModal('nota')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span id="btnNotaText">Nueva Calificación</span>
+          </button>
+        </div>
+        <div id="grid-notas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- SECCIÓN: FORO DE DISCUSIÓN -->
+      <section id="sec-foro" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white">Foro de Discusión General</h2>
+            <p class="text-sm text-slate-400">Comparte dudas, comentarios y debate con tus compañeros</p>
+          </div>
+          <button onclick="openModal('foro')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
+            <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+            <span>Nueva Publicación</span>
+          </button>
+        </div>
+        <div id="grid-foro" class="grid grid-cols-1 gap-4"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL DE FORMULARIO -->
+  <div id="dataModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card max-w-lg w-full p-6 rounded-3xl border border-violet-500/30 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="modalTitle" class="text-lg font-bold text-white">Agregar Registro</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      
+      <form id="dataForm" onsubmit="saveData(event)" class="space-y-4">
+        <input type="hidden" id="modalType">
+        <input type="hidden" id="editDocId">
+        <input type="hidden" id="studentUid">
+
+        <div>
+          <label id="lblTitle" class="block text-xs font-semibold uppercase text-slate-300 mb-1">Título / Nombre</label>
+          <input type="text" id="inputTitle" required placeholder="Escribe el título..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+        </div>
+
+        <div id="scoreField" class="hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Materia / Curso</label>
+              <input type="text" id="inputCourse" placeholder="Ej. Básicos" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Semana (1 - 20)</label>
+              <select id="inputWeek" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                <!-- Generado dinámicamente -->
+              </select>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-violet-400">Estatus de la Semana:</span>
+              <select id="inputStatus" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-white focus:outline-none focus:border-rose-500">
+                <option value="Incompleto">Incompleto</option>
+                <option value="Completo">Completo</option>
+              </select>
+            </div>
+
+            <div id="adminRubricSection" class="border-t border-slate-800 pt-3 hidden">
+              <span class="block text-xs font-bold uppercase tracking-wider text-rose-400 mb-2">Evaluación del Docente</span>
+              <div class="grid grid-cols-3 gap-2 mb-2">
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Contenido</label>
+                  <input type="number" id="rubricContent" min="0" max="100" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Puntualidad</label>
+                  <input type="number" id="rubricPunctuality" min="0" max="100" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Presentación</label>
+                  <input type="number" id="rubricPresentation" min="0" max="100" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-semibold text-slate-300">Nota Final:</span>
+                <input type="text" id="inputScore" placeholder="Calculado/Manual" class="w-28 bg-slate-950 border border-rose-500/50 rounded-lg px-2 py-1 text-sm font-bold text-center text-rose-400 focus:outline-none">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label id="lblDesc" class="block text-xs font-semibold uppercase text-slate-300 mb-1">Descripción / Detalles</label>
+          <textarea id="inputDesc" rows="4" placeholder="Escribe detalles..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500"></textarea>
+        </div>
+
+        <div id="linkField" class="hidden">
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Enlace / URL (opcional)</label>
+          <input type="url" id="inputLink" placeholder="https://..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+        </div>
+
+        <div class="flex gap-3 justify-end mt-6">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white">Cancelar</button>
+          <button type="submit" id="btnSaveData" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-rose-900/30 flex items-center gap-2">
+            <span id="btnSaveText">Guardar</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FIREBASE SDK & LÓGICA DE APLICACIÓN -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeE-DYQAGpPKsC3oe9pJGExD18VRwBok4",
+      authDomain: "pronea-eva.firebaseapp.com",
+      projectId: "pronea-eva",
+      storageBucket: "pronea-eva.firebasestorage.app",
+      messagingSenderId: "100421406011",
+      appId: "1:100421406011:web:2b34e8ae29cfa0c2b13b1e",
+      measurementId: "G-DH4VSQXVK9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let isRegistering = false;
+    let currentUser = null;
+    let userRole = "student";
+
+    const collectionNames = {
+      'persona': 'personas',
+      'documento': 'documentos',
+      'presentacion': 'presentaciones',
+      'nota': 'notas',
+      'foro': 'foro'
+    };
+
+    function populateWeeksSelect() {
+      const select = document.getElementById('inputWeek');
+      select.innerHTML = '';
+      for (let i = 1; i <= 19; i++) {
+        const opt = document.createElement('option');
+        opt.value = `Semana ${i}`;
+        opt.innerText = `Semana ${i}`;
+        select.appendChild(opt);
+      }
+      const finalOpt = document.createElement('option');
+      finalOpt.value = "Semana 20 - Proyecto Final";
+      finalOpt.innerText = "Semana 20 - PROYECTO FINAL 🏆";
+      select.appendChild(finalOpt);
+    }
+    populateWeeksSelect();
+
+    window.toggleAuthMode = () => {
+      isRegistering = !isRegistering;
+      document.getElementById('authTitle').innerText = isRegistering ? "Crear Cuenta" : "Iniciar Sesión";
+      document.getElementById('authSubtitle').innerText = isRegistering ? "Regístrate para ver los contenidos" : "Accede al Sistema Escolar PRONEA-EVA-SAC";
+      document.getElementById('authBtn').innerHTML = isRegistering ? '<span>Registrarse</span>' : '<span>Ingresar</span>';
+      document.getElementById('authToggleText').innerText = isRegistering ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?";
+      document.getElementById('authToggleBtn').innerText = isRegistering ? "Iniciar Sesión" : "Registrarse";
+    };
+
+    window.handleAuth = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const pass = document.getElementById('authPassword').value;
+
+      try {
+        if (isRegistering) {
+          const res = await createUserWithEmailAndPassword(auth, email, pass);
+          await setDoc(doc(db, "users", res.user.uid), { email: email, role: "student" });
+          alert("Cuenta creada con éxito");
+        } else {
+          await signInWithEmailAndPassword(auth, email, pass);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('authOverlay').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('userEmail').innerText = user.email;
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          userRole = userDoc.data().role || "student";
+        }
+        
+        document.getElementById('userRoleBadge').innerText = userRole.toUpperCase();
+        
+        if (userRole === "admin") {
+          document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+          document.getElementById('btnNotaText').innerText = "Evaluar / Gestionar";
+          document.getElementById('notasSectionTitle').innerText = "Panel General de Alumnos y Estatus";
+        } else {
+          document.getElementById('btnNotaText').innerText = "Actualizar Mi Avance";
+          document.getElementById('notasSectionTitle').innerText = "Mi Progreso Semanal";
+        }
+
+        listenToData('personas');
+        listenToData('documentos');
+        listenToData('presentaciones');
+        listenToData('notas');
+        listenToData('foro');
+      } else {
+        document.getElementById('authOverlay').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
+      }
+    });
+
+    window.logout = () => signOut(auth);
+
+    window.switchTab = (tab) => {
+      ['personas', 'documentos', 'presentaciones', 'notas', 'foro'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = "px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+      });
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).className = "px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all bg-gradient-to-r from-violet-600 to-rose-600 text-white shadow-lg";
+    };
+
+    window.calculateTotalScore = () => {
+      const c = parseFloat(document.getElementById('rubricContent').value) || 0;
+      const p = parseFloat(document.getElementById('rubricPunctuality').value) || 0;
+      const pr = parseFloat(document.getElementById('rubricPresentation').value) || 0;
+      const total = c + p + pr;
+      document.getElementById('inputScore').value = total > 0 ? `${total}/100` : '';
+    };
+
+    window.openModal = (type, id = null, title = '', desc = '', link = '', course = '', score = '', week = 'Semana 1', status = 'Incompleto', rContent = 0, rPunct = 0, rPres = 0, uid = '') => {
+      document.getElementById('modalType').value = type;
+      document.getElementById('editDocId').value = id || '';
+      document.getElementById('studentUid').value = uid || (currentUser ? currentUser.uid : '');
+      
+      const inputTitle = document.getElementById('inputTitle');
+      inputTitle.value = title;
+      inputTitle.readOnly = false;
+
+      document.getElementById('inputDesc').value = desc;
+      document.getElementById('inputLink').value = link;
+      document.getElementById('inputCourse').value = course;
+      document.getElementById('inputScore').value = score;
+      document.getElementById('inputWeek').value = week || 'Semana 1';
+      document.getElementById('inputStatus').value = status || 'Incompleto';
+      document.getElementById('rubricContent').value = rContent || '';
+      document.getElementById('rubricPunctuality').value = rPunct || '';
+      document.getElementById('rubricPresentation').value = rPres || '';
+
+      const scoreField = document.getElementById('scoreField');
+      const adminSection = document.getElementById('adminRubricSection');
+      const linkField = document.getElementById('linkField');
+
+      if (type === 'nota') {
+        document.getElementById('modalTitle').innerText = id ? "Gestionar Calificación" : "Registrar Avance";
+        document.getElementById('lblTitle').innerText = "Título / Actividad";
+        document.getElementById('lblDesc').innerText = "Observaciones";
+        scoreField.classList.remove('hidden');
+        linkField.classList.add('hidden');
+        if (userRole === 'admin') adminSection.classList.remove('hidden');
+        else adminSection.classList.add('hidden');
+      } else if (type === 'foro') {
+        document.getElementById('modalTitle').innerText = id ? "Editar Publicación" : "Nueva Publicación en el Foro";
+        document.getElementById('lblTitle').innerText = "Título del Tema / Pregunta";
+        document.getElementById('lblDesc').innerText = "Mensaje o Contenido";
+        scoreField.classList.add('hidden');
+        linkField.classList.remove('hidden');
+      } else {
+        document.getElementById('modalTitle').innerText = `Nuevo ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        document.getElementById('lblTitle').innerText = "Título / Nombre";
+        document.getElementById('lblDesc').innerText = "Descripción / Detalles";
+        scoreField.classList.add('hidden');
+        linkField.classList.toggle('hidden', type === 'persona');
+      }
+
+      document.getElementById('dataModal').classList.remove('hidden');
+    };
+
+    window.closeModal = () => {
+      document.getElementById('dataModal').classList.add('hidden');
+      document.getElementById('dataForm').reset();
+      document.getElementById('editDocId').value = '';
+    };
+
+    window.saveData = async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveData');
+      btn.disabled = true;
+      const btnSaveText = document.getElementById('btnSaveText');
+      if (btnSaveText) btnSaveText.innerText = "Guardando...";
+
+      const type = document.getElementById('modalType').value;
+      const docId = document.getElementById('editDocId').value;
+      const title = document.getElementById('inputTitle').value;
+      const desc = document.getElementById('inputDesc').value;
+      const link = document.getElementById('inputLink').value;
+      const course = document.getElementById('inputCourse').value;
+      const score = document.getElementById('inputScore').value;
+      const week = document.getElementById('inputWeek').value;
+      const status = document.getElementById('inputStatus').value;
+      const studentUid = document.getElementById('studentUid').value;
+      const authorEmail = currentUser ? currentUser.email : 'Anónimo';
+      
+      const rubricContent = parseFloat(document.getElementById('rubricContent').value) || 0;
+      const rubricPunctuality = parseFloat(document.getElementById('rubricPunctuality').value) || 0;
+      const rubricPresentation = parseFloat(document.getElementById('rubricPresentation').value) || 0;
+
+      try {
+        const targetCollection = collectionNames[type] || (type + "s");
+
+        const payload = {
+          title: title,
+          studentUid: studentUid || currentUser.uid,
+          authorEmail: authorEmail,
+          desc: desc,
+          link: link || "",
+          course: course || "",
+          score: score || "",
+          week: week || "Semana 1",
+          status: status || "Incompleto",
+          rubric: {
+            content: rubricContent,
+            punctuality: rubricPunctuality,
+            presentation: rubricPresentation
+          },
+          createdAt: new Date()
+        };
+
+        if (docId) {
+          delete payload.createdAt;
+          await updateDoc(doc(db, targetCollection, docId), payload);
+        } else {
+          await addDoc(collection(db, targetCollection), payload);
+        }
+
+        alert("¡Publicado / Guardado con éxito!");
+        closeModal();
+      } catch (err) {
+        console.error(err);
+        alert("Error al guardar: " + err.message);
+      } finally {
+        btn.disabled = false;
+        if (btnSaveText) btnSaveText.innerText = "Guardar";
+      }
+    };
+
+    window.deleteCard = async (type, id) => {
+      if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
+        const targetCollection = collectionNames[type] || (type + "s");
+        try {
+          await deleteDoc(doc(db, targetCollection, id));
+        } catch (err) {
+          alert("Error al eliminar: " + err.message);
+        }
+      }
+    };
+
+    function listenToData(collectionName) {
+      let collectionRef = collection(db, collectionName);
+      
+      if (collectionName === 'notas' && userRole !== 'admin' && currentUser) {
+        collectionRef = query(collection(db, 'notas'), where('studentUid', '==', currentUser.uid));
+      }
+
+      onSnapshot(collectionRef, (snapshot) => {
+        const grid = document.getElementById(`grid-${collectionName}`);
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        const singularTypeMap = {
+          'personas': 'persona',
+          'documentos': 'documento',
+          'presentaciones': 'presentacion',
+          'notas': 'nota',
+          'foro': 'foro'
+        };
+        const itemType = singularTypeMap[collectionName] || 'item';
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const docId = docSnap.id;
+          const card = document.createElement('div');
+          
+          const isProjectFinal = data.week === 'Semana 20 - Proyecto Final';
+          const isComplete = data.status === 'Completo';
+          const borderClass = isProjectFinal ? 'border-amber-500/50 hover:border-amber-400' : 'border-slate-800 hover:border-violet-500/50';
+
+          card.className = `glass-card p-5 rounded-2xl ${borderClass} transition-all flex flex-col justify-between group relative overflow-hidden`;
+
+          const safeTitle = (data.title || '').replace(/'/g, "\\'");
+          const safeDesc = (data.desc || '').replace(/'/g, "\\'");
+          const safeLink = (data.link || '').replace(/'/g, "\\'");
+          const safeCourse = (data.course || '').replace(/'/g, "\\'");
+          const safeScore = (data.score || '').replace(/'/g, "\\'");
+          const safeWeek = (data.week || 'Semana 1').replace(/'/g, "\\'");
+          const safeStatus = (data.status || 'Incompleto').replace(/'/g, "\\'");
+          const safeUid = (data.studentUid || '').replace(/'/g, "\\'");
+          const rContent = data.rubric ? data.rubric.content : 0;
+          const rPunct = data.rubric ? data.rubric.punctuality : 0;
+          const rPres = data.rubric ? data.rubric.presentation : 0;
+
+          const canModify = userRole === 'admin' || (currentUser && data.studentUid === currentUser.uid);
+
+          const actionButtons = canModify ? `
+            <div class="flex items-center gap-2">
+              <button onclick="openModal('${itemType}', '${docId}', '${safeTitle}', '${safeDesc}', '${safeLink}', '${safeCourse}', '${safeScore}', '${safeWeek}', '${safeStatus}', ${rContent}, ${rPunct}, ${rPres}, '${safeUid}')" class="p-1.5 text-slate-400 hover:text-violet-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-violet-500/30 transition-all" title="Editar">
+                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteCard('${itemType}', '${docId}')" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-rose-500/30 transition-all" title="Eliminar">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          ` : '';
+
+          if (collectionName === 'foro') {
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <div>
+                    <span class="bg-violet-950 text-violet-300 border border-violet-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Publicado por: ${data.authorEmail || 'Usuario'}</span>
+                    <h3 class="font-bold text-white text-lg mt-1">${data.title}</h3>
+                  </div>
+                  ${actionButtons}
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line my-3">${data.desc}</p>
+              </div>
+              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-2 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Enlace adjunto</a>` : ''}
+            `;
+          } else if (collectionName === 'notas') {
+            const badgeBg = isProjectFinal ? 'bg-amber-950 text-amber-300 border-amber-700/50' : 'bg-rose-950 text-rose-300 border-rose-800/40';
+            const statusBadge = isComplete 
+              ? '<span class="bg-emerald-950 text-emerald-400 border border-emerald-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full">Completo</span>' 
+              : '<span class="bg-amber-950 text-amber-400 border border-amber-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full">Incompleto</span>';
+
+            const studentInfo = userRole === 'admin' ? `<div class="text-[11px] text-violet-300 font-medium mb-1 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> Alumno: ${data.authorEmail || 'Desconocido'}</div>` : '';
+
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <div>
+                    <span class="${badgeBg} border text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${data.week || 'Semana 1'}</span>
+                    <h3 class="font-bold text-white text-base leading-snug mt-1">${data.title}</h3>
+                    <span class="text-xs font-semibold text-violet-400">${data.course || 'Materia no especificada'}</span>
+                  </div>
+                  ${actionButtons}
+                </div>
+
+                ${studentInfo}
+
+                <div class="my-3 bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-semibold">Estatus:</span>
+                    ${statusBadge}
+                  </div>
+                  <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-semibold">Nota / Calificación:</span>
+                    <span class="text-base font-black ${data.score ? 'text-rose-400' : 'text-slate-500'}">${data.score || 'Pendiente'}</span>
+                  </div>
+                </div>
+
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${data.desc || ''}</p>
+              </div>
+            `;
+          } else {
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <h3 class="font-bold text-white text-base leading-snug">${data.title}</h3>
+                  ${actionButtons}
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${data.desc}</p>
+              </div>
+              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Abrir enlace</a>` : ''}
+            `;
+          }
+
+          grid.appendChild(card);
+        });
+        lucide.createIcons();
+      });
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
