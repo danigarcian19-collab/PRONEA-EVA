@@ -271,7 +271,7 @@
         <input type="hidden" id="editDocId">
         <input type="hidden" id="studentUid">
 
-        <!-- Selector de Semana General (Para Planificaciones, Documentos, Presentaciones, Notas) -->
+        <!-- Selector de Semana General (Para Planificaciones, Documentos, Presentaciones, Notas, Foro) -->
         <div id="weekFieldWrapper">
           <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Seleccionar Semana / Orden</label>
           <select id="inputWeek" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
@@ -502,6 +502,7 @@
       const linkField = document.getElementById('linkField');
       const weekFieldWrapper = document.getElementById('weekFieldWrapper');
 
+      // Ocultar semanas exclusivamente en la sección de 'persona'
       if (type === 'persona') {
         weekFieldWrapper.classList.add('hidden');
       } else {
@@ -527,7 +528,6 @@
         document.getElementById('lblTitle').innerText = "Título / Nombre";
         document.getElementById('lblDesc').innerText = "Descripción / Detalles";
         scoreField.classList.add('hidden');
-        linkField.classList.toggle('hidden', type === 'persona');
       }
 
       document.getElementById('dataModal').classList.remove('hidden');
@@ -573,7 +573,7 @@
           link: link || "",
           course: course || "",
           score: score || "",
-          week: week || "Semana 1",
+          week: type === 'persona' ? "" : (week || "Semana 1"),
           status: status || "Incompleto",
           rubric: {
             content: rubricContent,
@@ -612,7 +612,6 @@
       }
     };
 
-    // Función auxiliar para extraer el número de semana para ordenar perfectamente
     function extractWeekNumber(weekStr) {
       if (!weekStr) return 99;
       if (weekStr.includes("20")) return 20;
@@ -632,13 +631,11 @@
         if (!grid) return;
         grid.innerHTML = "";
 
-        // Recopilamos todos los elementos en un arreglo para ordenarlos limpiamente
         let items = [];
         snapshot.forEach((docSnap) => {
           items.push({ id: docSnap.id, ...docSnap.data() });
         });
 
-        // Ordenamiento automático por semana (Semana 1, 2, 3... hasta 20)
         items.sort((a, b) => {
           const weekA = extractWeekNumber(a.week || a.title);
           const weekB = extractWeekNumber(b.week || b.title);
@@ -684,7 +681,7 @@
               <button onclick="openModal('${itemType}', '${docId}', '${safeTitle}', '${safeDesc}', '${safeLink}', '${safeCourse}', '${safeScore}', '${safeWeek}', '${safeStatus}', ${rContent}, ${rPunct}, ${rPres}, '${safeUid}')" class="p-1.5 text-slate-400 hover:text-violet-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-violet-500/30 transition-all" title="Editar">
                 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
               </button>
-              <button onclick="deleteCard('${itemtype || itemType}', '${docId}')" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-rose-500/30 transition-all" title="Eliminar">
+              <button onclick="deleteCard('${itemType}', '${docId}')" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-rose-500/30 transition-all" title="Eliminar">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             </div>
@@ -695,7 +692,7 @@
               <div>
                 <div class="flex justify-between items-start gap-2 mb-2">
                   <div>
-                    <span class="bg-violet-950 text-violet-300 border border-violet-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Publicado por: ${data.authorEmail || 'Usuario'}</span>
+                    <span class="bg-violet-950 text-violet-300 border border-violet-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${data.week ? data.week + ' • ' : ''}Publicado por: ${data.authorEmail || 'Usuario'}</span>
                     <h3 class="font-bold text-white text-lg mt-1">${data.title}</h3>
                   </div>
                   ${actionButtons}
@@ -739,6 +736,19 @@
                 <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${data.desc || ''}</p>
               </div>
             `;
+          } else if (collectionName === 'personas') {
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <div>
+                    <h3 class="font-bold text-white text-base leading-snug">${data.title}</h3>
+                  </div>
+                  ${actionButtons}
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${data.desc}</p>
+              </div>
+              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Enlace de contacto</a>` : ''}
+            `;
           } else {
             card.innerHTML = `
               <div>
@@ -751,7 +761,7 @@
                 </div>
                 <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${data.desc}</p>
               </div>
-              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Abrir planificación / enlace</a>` : ''}
+              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Abrir enlace / recurso</a>` : ''}
             `;
           }
 
