@@ -364,6 +364,9 @@
     let currentUser = null;
     let userRole = "student";
 
+    // Almacenamiento local en memoria para evitar errores de sintaxis en el HTML al editar textos con saltos de línea
+    window.appData = {};
+
     const collectionNames = {
       'persona': 'personas',
       'documento': 'documentos',
@@ -373,12 +376,22 @@
       'foro': 'foro'
     };
 
-    // POBLAR SELECTOR DE SEMANAS (INCLUYE "PLANIFICACIÓN GENERAL" SOLO PARA PLANIFICACIONES)
+    // ESCAPAR CARACTERES HTML PARA SEGURIDAD
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // POBLAR SELECTOR DE SEMANAS
     function populateWeeksSelect(type) {
       const select = document.getElementById('inputWeek');
       select.innerHTML = '';
 
-      // Opción exclusiva para la sección de planificaciones
       if (type === 'planificacion') {
         const genOpt = document.createElement('option');
         genOpt.value = "Planificación General";
@@ -447,6 +460,7 @@
           document.getElementById('btnNotaText').innerText = "Evaluar / Administrar Tarea";
           document.getElementById('notasSectionTitle').innerText = "Panel General de Entregas y Evaluaciones";
         } else {
+          document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
           document.getElementById('btnNotaText').innerText = "Enviar Tarea";
           document.getElementById('notasSectionTitle').innerText = "Mi Progreso y Evaluaciones Semanales";
         }
@@ -538,33 +552,39 @@
       }
     };
 
-    window.openModal = (type, id = null, title = '', desc = '', link = '', course = '', score = '', week = '', status = 'Pendiente de calificar', c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, phone = '', email = '', role = 'Alumno', uid = '', authorEmail = '') => {
+    window.editItem = (type, id) => {
+      window.openModal(type, id);
+    };
+
+    window.openModal = (type, id = null) => {
       populateWeeksSelect(type);
+      const data = id ? (window.appData[id] || {}) : {};
 
       document.getElementById('modalType').value = type;
       document.getElementById('editDocId').value = id || '';
-      document.getElementById('studentUid').value = uid || (currentUser ? currentUser.uid : '');
-      document.getElementById('studentEmailHidden').value = authorEmail || (currentUser ? currentUser.email : 'Anónimo');
+      document.getElementById('studentUid').value = data.studentUid || (currentUser ? currentUser.uid : '');
+      document.getElementById('studentEmailHidden').value = data.authorEmail || (currentUser ? currentUser.email : 'Anónimo');
 
-      document.getElementById('inputTitle').value = title;
-      document.getElementById('inputDesc').value = desc;
-      document.getElementById('inputLink').value = link;
-      document.getElementById('inputCourse').value = course;
-      document.getElementById('inputScore').value = score || '0.0/100';
+      document.getElementById('inputTitle').value = data.title || '';
+      document.getElementById('inputDesc').value = data.desc || '';
+      document.getElementById('inputLink').value = data.link || '';
+      document.getElementById('inputCourse').value = data.course || '';
+      document.getElementById('inputScore').value = data.score || '0.0/100';
       
       const defaultWeek = type === 'planificacion' ? 'Planificación General' : 'Semana 1';
-      document.getElementById('inputWeek').value = week || defaultWeek;
-      document.getElementById('inputStatus').value = status || 'Pendiente de calificar';
+      document.getElementById('inputWeek').value = data.week || defaultWeek;
+      document.getElementById('inputStatus').value = data.status || 'Pendiente de calificar';
 
-      document.getElementById('crit1').value = c1 || '';
-      document.getElementById('crit2').value = c2 || '';
-      document.getElementById('crit3').value = c3 || '';
-      document.getElementById('crit4').value = c4 || '';
-      document.getElementById('crit5').value = c5 || '';
+      const crits = data.criterios || { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0 };
+      document.getElementById('crit1').value = crits.c1 || '';
+      document.getElementById('crit2').value = crits.c2 || '';
+      document.getElementById('crit3').value = crits.c3 || '';
+      document.getElementById('crit4').value = crits.c4 || '';
+      document.getElementById('crit5').value = crits.c5 || '';
 
-      document.getElementById('inputPhone').value = phone || '';
-      document.getElementById('inputPersonEmail').value = email || '';
-      document.getElementById('inputPersonRole').value = role || 'Alumno';
+      document.getElementById('inputPhone').value = data.phone || '';
+      document.getElementById('inputPersonEmail').value = data.personEmail || '';
+      document.getElementById('inputPersonRole').value = data.personRole || 'Alumno';
 
       const scoreField = document.getElementById('scoreField');
       const linkField = document.getElementById('linkField');
@@ -598,13 +618,28 @@
         }
 
         document.getElementById('lblTitle').innerText = "Nombre de la Tarea / Actividad";
+      } else if (type === 'foro') {
+        weekFieldWrapper.classList.remove('hidden');
+        personaFields.classList.add('hidden');
+        courseAndStatusWrapper.classList.add('hidden');
+        scoreField.classList.add('hidden');
+        linkField.classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = id ? "Editar Publicación" : "Nueva Publicación del Foro";
+        document.getElementById('lblTitle').innerText = "Título del Tema / Pregunta";
       } else {
         weekFieldWrapper.classList.remove('hidden');
         personaFields.classList.add('hidden');
         courseAndStatusWrapper.classList.add('hidden');
         scoreField.classList.add('hidden');
         linkField.classList.remove('hidden');
-        document.getElementById('modalTitle').innerText = id ? `Editar ${type}` : `Nuevo ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        
+        const typeNames = {
+          'documento': 'Documento',
+          'presentacion': 'Presentación',
+          'planificacion': 'Planificación'
+        };
+        const typeLabel = typeNames[type] || (type.charAt(0).toUpperCase() + type.slice(1));
+        document.getElementById('modalTitle').innerText = id ? `Editar ${typeLabel}` : `Nueva ${typeLabel}`;
         document.getElementById('lblTitle').innerText = "Título / Nombre";
       }
 
@@ -630,7 +665,6 @@
       const desc = document.getElementById('inputDesc').value;
       const link = document.getElementById('inputLink').value;
       const course = document.getElementById('inputCourse').value;
-      const score = document.getElementById('inputScore').value;
       const week = document.getElementById('inputWeek').value;
       
       let status = document.getElementById('inputStatus').value;
@@ -719,13 +753,12 @@
       }
     };
 
-    // ORDENA PLANIFICACIÓN GENERAL AL PRINCIPIO (0), LUEGO SEMANAS 1..19, Y PROYECTO FINAL AL ÚLTIMO (20)
     function extractWeekNumber(weekStr) {
       if (!weekStr) return 99;
-      if (weekStr === 'Planificación General') return 0; // Posición principal arriba de todo
+      if (weekStr === 'Planificación General') return 0;
       if (weekStr.includes("20")) return 20;
       const match = weekStr.match(/\d+/);
-      return match ? parseInt(match[0]) : 99;
+      return match ? parseInt(match[0], 10) : 99;
     }
 
     function updateWeeklySummary(notasItems) {
@@ -766,7 +799,7 @@
 
         return `
           <div class="bg-slate-950/80 border border-violet-900/40 rounded-xl p-3 flex flex-col justify-between">
-            <span class="text-[10px] font-extrabold uppercase text-violet-400 tracking-wider">${wKey}</span>
+            <span class="text-[10px] font-extrabold uppercase text-violet-400 tracking-wider">${escapeHtml(wKey)}</span>
             <div class="my-1 flex items-baseline justify-between">
               <span class="text-lg font-black text-white">${porcentajeAcumulado.toFixed(1)}%</span>
               <span class="text-xs font-bold text-rose-400">${notaSobre5.toFixed(2)} / 5.0 pts</span>
@@ -791,7 +824,9 @@
 
         let items = [];
         snapshot.forEach((docSnap) => {
-          items.push({ id: docSnap.id, ...docSnap.data() });
+          const itemData = { id: docSnap.id, ...docSnap.data() };
+          items.push(itemData);
+          window.appData[docSnap.id] = itemData;
         });
 
         items.sort((a, b) => {
@@ -827,25 +862,12 @@
 
           card.className = `glass-card p-5 rounded-2xl ${borderClass} transition-all flex flex-col justify-between group relative overflow-hidden`;
 
-          const safeTitle = (data.title || '').replace(/'/g, "\\'");
-          const safeDesc = (data.desc || '').replace(/'/g, "\\'");
-          const safeLink = (data.link || '').replace(/'/g, "\\'");
-          const safeCourse = (data.course || '').replace(/'/g, "\\'");
-          const safeScore = (data.score || '').replace(/'/g, "\\'");
-          const safeWeek = (data.week || 'Semana 1').replace(/'/g, "\\'");
-          const safeStatus = (data.status || 'Pendiente de calificar').replace(/'/g, "\\'");
-          const safePhone = (data.phone || '').replace(/'/g, "\\'");
-          const safePersonEmail = (data.personEmail || '').replace(/'/g, "\\'");
-          const safePersonRole = (data.personRole || 'Alumno').replace(/'/g, "\\'");
-          const safeUid = (data.studentUid || '').replace(/'/g, "\\'");
-          const safeAuthorEmail = (data.authorEmail || 'Alumno').replace(/'/g, "\\'");
-
           const crits = data.criterios || { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0 };
           const canModify = userRole === 'admin' || (currentUser && data.studentUid === currentUser.uid);
 
           const actionButtons = canModify ? `
             <div class="flex items-center gap-2">
-              <button onclick="openModal('${itemType}', '${docId}', '${safeTitle}', '${safeDesc}', '${safeLink}', '${safeCourse}', '${safeScore}', '${safeWeek}', '${safeStatus}', ${crits.c1}, ${crits.c2}, ${crits.c3}, ${crits.c4}, ${crits.c5}, '${safePhone}', '${safePersonEmail}', '${safePersonRole}', '${safeUid}', '${safeAuthorEmail}')" class="p-1.5 text-slate-400 hover:text-violet-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-violet-500/30 transition-all" title="${userRole === 'admin' ? 'Editar' : 'Editar Entrega'}">
+              <button onclick="editItem('${itemType}', '${docId}')" class="p-1.5 text-slate-400 hover:text-violet-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-violet-500/30 transition-all" title="${userRole === 'admin' ? 'Editar' : 'Editar Entrega'}">
                 <i data-lucide="${userRole === 'admin' ? 'check-square' : 'pencil'}" class="w-3.5 h-3.5"></i>
               </button>
               <button onclick="deleteCard('${itemType}', '${docId}')" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900/60 rounded-lg border border-slate-800 hover:border-rose-500/30 transition-all" title="Eliminar">
@@ -863,18 +885,18 @@
               <div>
                 <div class="flex justify-between items-start gap-2 mb-2">
                   <div>
-                    <span class="${roleColor} border text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${data.personRole || 'Alumno'}</span>
-                    <h3 class="font-bold text-white text-base mt-2">${data.title}</h3>
+                    <span class="${roleColor} border text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(data.personRole || 'Alumno')}</span>
+                    <h3 class="font-bold text-white text-base mt-2">${escapeHtml(data.title)}</h3>
                   </div>
                   ${actionButtons}
                 </div>
                 
                 <div class="space-y-1.5 my-3 text-xs text-slate-300">
-                  <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-rose-400"></i> ${data.phone || 'Sin teléfono'}</p>
-                  <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-violet-400"></i> ${data.personEmail || 'Sin correo'}</p>
+                  <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-rose-400"></i> ${escapeHtml(data.phone || 'Sin teléfono')}</p>
+                  <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-violet-400"></i> ${escapeHtml(data.personEmail || 'Sin correo')}</p>
                 </div>
 
-                <p class="text-xs text-slate-400 leading-relaxed">${data.desc || ''}</p>
+                <p class="text-xs text-slate-400 leading-relaxed whitespace-pre-line">${escapeHtml(data.desc || '')}</p>
               </div>
             `;
           } else if (collectionName === 'notas') {
@@ -917,11 +939,11 @@
               <div>
                 <div class="flex justify-between items-start gap-2 mb-2">
                   <div>
-                    <span class="bg-rose-950 text-rose-300 border border-rose-800/40 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${data.week || 'Semana 1'}</span>
-                    <h3 class="font-bold text-white text-base leading-snug mt-1">${data.title}</h3>
-                    <span class="text-xs font-semibold text-violet-400 block">${data.course || 'Materia General'}</span>
+                    <span class="bg-rose-950 text-rose-300 border border-rose-800/40 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${escapeHtml(data.week || 'Semana 1')}</span>
+                    <h3 class="font-bold text-white text-base leading-snug mt-1">${escapeHtml(data.title)}</h3>
+                    <span class="text-xs font-semibold text-violet-400 block">${escapeHtml(data.course || 'Materia General')}</span>
                     <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1 mt-1">
-                      <i data-lucide="user-check" class="w-3 h-3 text-rose-400"></i> Enviado por: <strong class="text-slate-200 font-semibold">${data.authorEmail || 'Alumno'}</strong>
+                      <i data-lucide="user-check" class="w-3 h-3 text-rose-400"></i> Enviado por: <strong class="text-slate-200 font-semibold">${escapeHtml(data.authorEmail || 'Alumno')}</strong>
                     </span>
                   </div>
                   ${actionButtons}
@@ -936,12 +958,81 @@
                   ${evaluationBlock}
                 </div>
 
-                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${data.desc || ''}</p>
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${escapeHtml(data.desc || '')}</p>
                 ${data.link ? `<a href="${data.link}" target="_blank" class="mt-3 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Ver Archivo / Tarea Adjunta</a>` : ''}
               </div>
             `;
+          } else if (collectionName === 'foro') {
+            const replies = data.replies || [];
+            
+            const repliesHtml = replies.map(r => {
+              const canDeleteReply = userRole === 'admin' || (currentUser && r.authorUid === currentUser.uid);
+              const replyDate = r.createdAt ? new Date(r.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+              
+              return `
+                <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 text-xs space-y-1 relative group">
+                  <div class="flex justify-between items-center text-slate-400">
+                    <span class="font-semibold text-violet-300">${escapeHtml(r.authorEmail)}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] text-slate-500">${replyDate}</span>
+                      ${canDeleteReply ? `
+                        <button onclick="deleteReply('${docId}', '${r.id}')" class="text-slate-500 hover:text-rose-400 transition-colors" title="Eliminar respuesta">
+                          <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+                      ` : ''}
+                    </div>
+                  </div>
+                  <p class="text-slate-200 whitespace-pre-line">${escapeHtml(r.desc)}</p>
+                </div>
+              `;
+            }).join('');
+
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <div>
+                    <span class="bg-violet-950 text-violet-300 border border-violet-800/50 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${escapeHtml(data.week || 'Foro General')}</span>
+                    <h3 class="font-bold text-white text-base leading-snug mt-1.5">${escapeHtml(data.title)}</h3>
+                    <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1 mt-1">
+                      <i data-lucide="user" class="w-3 h-3 text-violet-400"></i> Publicado por: <strong class="text-slate-200 font-semibold">${escapeHtml(data.authorEmail || 'Anónimo')}</strong>
+                    </span>
+                  </div>
+                  ${actionButtons}
+                </div>
+
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line my-3">${escapeHtml(data.desc)}</p>
+                ${data.link ? `<a href="${data.link}" target="_blank" class="text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1 mb-3"><i data-lucide="external-link" class="w-3 h-3"></i> Recurso adjunto</a>` : ''}
+
+                <!-- SECCIÓN DE RESPUESTAS -->
+                <div class="mt-4 pt-4 border-t border-slate-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="message-square" class="w-3.5 h-3.5 text-rose-400"></i>
+                      Respuestas (${replies.length})
+                    </span>
+                    <button onclick="toggleReplyBox('${docId}')" class="text-xs text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1 transition-colors">
+                      <i data-lucide="corner-down-right" class="w-3 h-3"></i> Responder
+                    </button>
+                  </div>
+
+                  <div id="replyBox-${docId}" class="hidden space-y-2 bg-slate-900/90 p-3 rounded-xl border border-violet-500/30">
+                    <textarea id="replyInput-${docId}" rows="2" placeholder="Escribe tu respuesta..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-rose-500"></textarea>
+                    <div class="flex justify-end gap-2">
+                      <button onclick="toggleReplyBox('${docId}')" class="px-3 py-1 text-xs text-slate-400 hover:text-white">Cancelar</button>
+                      <button onclick="addReply('${docId}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-lg text-xs font-semibold shadow flex items-center gap-1">
+                        <span>Enviar</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                    ${replies.length > 0 ? repliesHtml : '<p class="text-xs text-slate-500 italic">No hay respuestas aún. ¡Sé el primero en responder!</p>'}
+                  </div>
+                </div>
+              </div>
+            `;
           } else {
-            // DOCUMENTOS, PRESENTACIONES, PLANIFICACIONES Y RECURSOS
+            // DOCUMENTOS, PRESENTACIONES Y PLANIFICACIONES
             const badgeClass = isGeneralPlan ? 'bg-amber-950 text-amber-300 border-amber-700/60' : 'bg-violet-950 text-violet-300 border-violet-800/50';
 
             card.innerHTML = `
@@ -949,13 +1040,13 @@
                 <div class="flex justify-between items-start gap-2 mb-2">
                   <div>
                     <span class="${badgeClass} border text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 w-fit">
-                      ${isGeneralPlan ? '📋 Programa Completo' : (data.week || 'Semana 1')}
+                      ${isGeneralPlan ? '📋 Programa Completo' : escapeHtml(data.week || 'Semana 1')}
                     </span>
-                    <h3 class="font-bold text-white text-base leading-snug mt-1.5">${data.title}</h3>
+                    <h3 class="font-bold text-white text-base leading-snug mt-1.5">${escapeHtml(data.title)}</h3>
                   </div>
                   ${actionButtons}
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line mt-2">${data.desc}</p>
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line mt-2">${escapeHtml(data.desc)}</p>
               </div>
               ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Abrir enlace / programa</a>` : ''}
             `;
