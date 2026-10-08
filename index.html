@@ -104,6 +104,13 @@
           <i data-lucide="presentation" class="w-4 h-4"></i>
           <span>Presentaciones</span>
         </button>
+
+        <!-- SECCIÓN DE VÍDEOS ENTRE PRESENTACIONES Y PLANIFICACIONES -->
+        <button onclick="switchTab('videos')" id="tab-videos" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+          <i data-lucide="video" class="w-4 h-4"></i>
+          <span>Vídeos</span>
+        </button>
+
         <button onclick="switchTab('planificaciones')" id="tab-planificaciones" class="px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
           <i data-lucide="calendar-check" class="w-4 h-4"></i>
           <span>Planificaciones</span>
@@ -138,7 +145,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h2 class="text-xl font-bold text-white">Documentos & Enlaces</h2>
-            <p class="text-sm text-slate-400">Recursos guardados y archivos compartidos</p>
+            <p class="text-sm text-slate-400">Guías, ejemplos y recursos académicos clasificados</p>
           </div>
           <button onclick="openModal('documento')" class="admin-only hidden bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -153,7 +160,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h2 class="text-xl font-bold text-white">Galería de Presentaciones</h2>
-            <p class="text-sm text-slate-400">Material audiovisual y diapositivas</p>
+            <p class="text-sm text-slate-400">Material audiovisual y diapositivas de clase</p>
           </div>
           <button onclick="openModal('presentacion')" class="admin-only hidden bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -161,6 +168,21 @@
           </button>
         </div>
         <div id="grid-presentaciones" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- SECCIÓN: VÍDEOS -->
+      <section id="sec-videos" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-white">Biblioteca de Vídeos</h2>
+            <p class="text-sm text-slate-400">Recursos audiovisuales propios y de autores externos</p>
+          </div>
+          <button onclick="openModal('video')" class="admin-only hidden bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nuevo Vídeo</span>
+          </button>
+        </div>
+        <div id="grid-videos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
       <!-- SECCIÓN: PLANIFICACIONES -->
@@ -191,7 +213,7 @@
           </button>
         </div>
 
-        <!-- RESUMEN PORCENTUAL Y EQUIVALENCIA SOBRE 5 POR SEMANA -->
+        <!-- RESUMEN PORCENTUAL -->
         <div class="bg-slate-900/80 border border-violet-500/30 rounded-2xl p-5 space-y-3">
           <div class="flex items-center gap-2">
             <i data-lucide="trending-up" class="w-5 h-5 text-rose-400"></i>
@@ -202,7 +224,6 @@
           </div>
         </div>
 
-        <!-- REJILLA DE TAREAS Y CALIFICACIONES DETALLADAS -->
         <div id="grid-notas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
@@ -221,6 +242,37 @@
         <div id="grid-foro" class="grid grid-cols-1 gap-4"></div>
       </section>
     </main>
+
+    <!-- PIE DE PÁGINA (FOOTER CON CONTACTOS CORREGIDOS) -->
+    <footer class="border-t border-violet-900/30 bg-slate-900/80 backdrop-blur-md py-6 mt-12">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-gradient-to-tr from-violet-600 to-rose-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <p class="font-bold text-white text-sm">PRONEA-EVA-SAC</p>
+            <p class="text-[11px] text-slate-400">Sacatepéquez — © 2026 Todos los derechos reservados.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="font-semibold text-slate-300">Contáctanos:</span>
+          <a href="https://wa.me/50254563529" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 bg-emerald-950/80 text-emerald-300 border border-emerald-800/50 px-3 py-1.5 rounded-full hover:bg-emerald-900/50 transition-all text-xs font-semibold">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>WhatsApp</span>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61591795502848" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 bg-blue-950/80 text-blue-300 border border-blue-800/50 px-3 py-1.5 rounded-full hover:bg-blue-900/50 transition-all text-xs font-semibold">
+            <i data-lucide="facebook" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>Facebook</span>
+          </a>
+          <a href="https://www.instagram.com/eligthpheriamate/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 bg-rose-950/80 text-rose-300 border border-rose-800/50 px-3 py-1.5 rounded-full hover:bg-rose-900/50 transition-all text-xs font-semibold">
+            <i data-lucide="instagram" class="w-3.5 h-3.5 text-rose-400"></i>
+            <span>Instagram</span>
+          </a>
+        </div>
+      </div>
+    </footer>
   </div>
 
   <!-- MODAL DE FORMULARIO -->
@@ -237,12 +289,42 @@
         <input type="hidden" id="studentUid">
         <input type="hidden" id="studentEmailHidden">
 
-        <!-- Selector de Semana o Planificación General -->
+        <!-- Selector de Semana -->
         <div id="weekFieldWrapper">
           <label class="block text-xs font-semibold uppercase text-slate-300 mb-1" id="lblWeekSelect">Seleccionar Semana / Clasificación</label>
-          <select id="inputWeek" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
-            <!-- Generado dinámicamente según el tipo de contenido -->
+          <select id="inputWeek" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500"></select>
+        </div>
+
+        <!-- TIPO DE DOCUMENTO (SOLO PARA SECCIÓN DOCUMENTOS: Guía, Documento, Ejemplo) -->
+        <div id="docCategoryWrapper" class="hidden">
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Clasificación del Documento</label>
+          <select id="inputDocCategory" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+            <option value="Guía">Guía</option>
+            <option value="Documento">Documento</option>
+            <option value="Ejemplo">Ejemplo</option>
           </select>
+        </div>
+
+        <!-- TIPO DE AUTORÍA (PARA VÍDEOS Y DOCUMENTOS: Propio / Terceros) -->
+        <div id="autoriaWrapper" class="hidden space-y-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Tipo de Autoría / Derechos</label>
+            <select id="inputAutoria" onchange="toggleTercerosFields()" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+              <option value="Propio">Propio (Elaboración propia)</option>
+              <option value="Terceros">Terceros (Autor externo)</option>
+            </select>
+          </div>
+
+          <div id="tercerosFields" class="hidden grid grid-cols-2 gap-3 p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase text-amber-300 mb-1">Nombre del Autor</label>
+              <input type="text" id="inputAuthor" placeholder="Ej. Dr. Juan Pérez / Canal XYZ" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase text-amber-300 mb-1">Sitio de Origen</label>
+              <input type="text" id="inputOrigin" placeholder="Ej. YouTube / Repositorio URL" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+            </div>
+          </div>
         </div>
 
         <div>
@@ -287,33 +369,16 @@
           </div>
         </div>
 
-        <!-- EVALUACIÓN Y NOTAS (SOLO PARA ADMINISTRADORES/DOCENTES) -->
+        <!-- EVALUACIÓN (EXCLUSIVO DOCENTE) -->
         <div id="scoreField" class="hidden bg-slate-900/90 p-4 rounded-2xl border border-violet-500/40 space-y-3">
-          <span class="block text-xs font-bold uppercase tracking-wider text-rose-400">Evaluación por 5 Criterios (Exclusivo Docente - Máx 20 pts c/u)</span>
-          
+          <span class="block text-xs font-bold uppercase tracking-wider text-rose-400">Evaluación por 5 Criterios (Máx 20 pts c/u)</span>
           <div class="grid grid-cols-5 gap-2">
-            <div>
-              <label class="block text-[10px] text-slate-400 text-center mb-1">Criterio 1</label>
-              <input type="number" id="crit1" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 text-center mb-1">Criterio 2</label>
-              <input type="number" id="crit2" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 text-center mb-1">Criterio 3</label>
-              <input type="number" id="crit3" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 text-center mb-1">Criterio 4</label>
-              <input type="number" id="crit4" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 text-center mb-1">Criterio 5</label>
-              <input type="number" id="crit5" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:border-rose-500">
-            </div>
+            <div><label class="block text-[10px] text-slate-400 text-center mb-1">Crit 1</label><input type="number" id="crit1" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center"></div>
+            <div><label class="block text-[10px] text-slate-400 text-center mb-1">Crit 2</label><input type="number" id="crit2" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center"></div>
+            <div><label class="block text-[10px] text-slate-400 text-center mb-1">Crit 3</label><input type="number" id="crit3" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center"></div>
+            <div><label class="block text-[10px] text-slate-400 text-center mb-1">Crit 4</label><input type="number" id="crit4" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center"></div>
+            <div><label class="block text-[10px] text-slate-400 text-center mb-1">Crit 5</label><input type="number" id="crit5" min="0" max="20" step="0.1" placeholder="0" oninput="calculateTotalScore()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white text-center"></div>
           </div>
-
           <div class="flex justify-between items-center pt-2 border-t border-slate-800">
             <span class="text-xs font-semibold text-slate-300">Nota Total Calculada:</span>
             <input type="text" id="inputScore" readonly placeholder="0.0/100" class="w-28 bg-slate-950 border border-rose-500/50 rounded-lg px-2 py-1 text-sm font-bold text-center text-rose-400 focus:outline-none">
@@ -326,7 +391,7 @@
         </div>
 
         <div id="linkField" class="hidden">
-          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Enlace / URL del Recurso (Drive, PDF, Sitio)</label>
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Enlace / URL del Recurso (Drive, YouTube, PDF, Sitio)</label>
           <input type="url" id="inputLink" placeholder="https://..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
         </div>
 
@@ -340,7 +405,7 @@
     </div>
   </div>
 
-  <!-- FIREBASE SDK & LÓGICA DE APLICACIÓN -->
+  <!-- FIREBASE SDK Y LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -364,19 +429,18 @@
     let currentUser = null;
     let userRole = "student";
 
-    // Almacenamiento local en memoria para evitar errores de sintaxis en el HTML al editar textos con saltos de línea
     window.appData = {};
 
     const collectionNames = {
       'persona': 'personas',
       'documento': 'documentos',
       'presentacion': 'presentaciones',
+      'video': 'videos',
       'planificacion': 'planificaciones',
       'nota': 'notas',
       'foro': 'foro'
     };
 
-    // ESCAPAR CARACTERES HTML PARA SEGURIDAD
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -387,7 +451,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    // POBLAR SELECTOR DE SEMANAS
     function populateWeeksSelect(type) {
       const select = document.getElementById('inputWeek');
       select.innerHTML = '';
@@ -447,14 +510,9 @@
         document.getElementById('userEmail').innerText = user.email;
 
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          userRole = userDoc.data().role || "student";
-        } else {
-          userRole = "student";
-        }
-        
+        userRole = userDoc.exists() ? (userDoc.data().role || "student") : "student";
         document.getElementById('userRoleBadge').innerText = userRole.toUpperCase();
-        
+
         if (userRole === "admin") {
           document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
           document.getElementById('btnNotaText').innerText = "Evaluar / Administrar Tarea";
@@ -468,6 +526,7 @@
         listenToData('personas');
         listenToData('documentos');
         listenToData('presentaciones');
+        listenToData('videos');
         listenToData('planificaciones');
         listenToData('notas');
         listenToData('foro');
@@ -480,7 +539,7 @@
     window.logout = () => signOut(auth);
 
     window.switchTab = (tab) => {
-      ['personas', 'documentos', 'presentaciones', 'planificaciones', 'notas', 'foro'].forEach(t => {
+      ['personas', 'documentos', 'presentaciones', 'videos', 'planificaciones', 'notas', 'foro'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
         document.getElementById(`tab-${t}`).className = "px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
       });
@@ -494,11 +553,19 @@
       const c3 = parseFloat(document.getElementById('crit3').value) || 0;
       const c4 = parseFloat(document.getElementById('crit4').value) || 0;
       const c5 = parseFloat(document.getElementById('crit5').value) || 0;
-      const total = c1 + c2 + c3 + c4 + c5;
-      document.getElementById('inputScore').value = `${total.toFixed(1)}/100`;
+      document.getElementById('inputScore').value = `${(c1 + c2 + c3 + c4 + c5).toFixed(1)}/100`;
     };
 
-    // RESPUESTAS EN EL FORO DE DISCUSIÓN
+    window.toggleTercerosFields = () => {
+      const autoriaVal = document.getElementById('inputAutoria').value;
+      const tercerosFields = document.getElementById('tercerosFields');
+      if (autoriaVal === 'Terceros') {
+        tercerosFields.classList.remove('hidden');
+      } else {
+        tercerosFields.classList.add('hidden');
+      }
+    };
+
     window.toggleReplyBox = (docId) => {
       const box = document.getElementById(`replyBox-${docId}`);
       if (box) box.classList.toggle('hidden');
@@ -575,6 +642,12 @@
       document.getElementById('inputWeek').value = data.week || defaultWeek;
       document.getElementById('inputStatus').value = data.status || 'Pendiente de calificar';
 
+      document.getElementById('inputDocCategory').value = data.docCategory || 'Documento';
+      document.getElementById('inputAutoria').value = data.autoria || 'Propio';
+      document.getElementById('inputAuthor').value = data.authorName || '';
+      document.getElementById('inputOrigin').value = data.siteOrigin || '';
+      window.toggleTercerosFields();
+
       const crits = data.criterios || { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0 };
       document.getElementById('crit1').value = crits.c1 || '';
       document.getElementById('crit2').value = crits.c2 || '';
@@ -592,52 +665,48 @@
       const personaFields = document.getElementById('personaFields');
       const courseAndStatusWrapper = document.getElementById('courseAndStatusWrapper');
       const statusSelectWrapper = document.getElementById('statusSelectWrapper');
+      const docCategoryWrapper = document.getElementById('docCategoryWrapper');
+      const autoriaWrapper = document.getElementById('autoriaWrapper');
+
+      weekFieldWrapper.classList.remove('hidden');
+      personaFields.classList.add('hidden');
+      courseAndStatusWrapper.classList.add('hidden');
+      scoreField.classList.add('hidden');
+      linkField.classList.remove('hidden');
+      docCategoryWrapper.classList.add('hidden');
+      autoriaWrapper.classList.add('hidden');
 
       if (type === 'persona') {
         weekFieldWrapper.classList.add('hidden');
         personaFields.classList.remove('hidden');
-        courseAndStatusWrapper.classList.add('hidden');
-        scoreField.classList.add('hidden');
         linkField.classList.add('hidden');
         document.getElementById('modalTitle').innerText = id ? "Editar Persona" : "Nueva Persona";
         document.getElementById('lblTitle').innerText = "Nombre Completo";
+      } else if (type === 'documento') {
+        docCategoryWrapper.classList.remove('hidden');
+        autoriaWrapper.classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = id ? "Editar Documento" : "Nuevo Documento";
+        document.getElementById('lblTitle').innerText = "Título del Documento";
+      } else if (type === 'video') {
+        autoriaWrapper.classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = id ? "Editar Vídeo" : "Nuevo Vídeo";
+        document.getElementById('lblTitle').innerText = "Título del Vídeo";
       } else if (type === 'nota') {
-        weekFieldWrapper.classList.remove('hidden');
-        personaFields.classList.add('hidden');
         courseAndStatusWrapper.classList.remove('hidden');
-        linkField.classList.remove('hidden');
-
         if (userRole === 'admin') {
           scoreField.classList.remove('hidden');
           statusSelectWrapper.classList.remove('hidden');
           document.getElementById('modalTitle').innerText = id ? "Calificar Tarea / Evaluación" : "Registrar Nueva Evaluación";
         } else {
-          scoreField.classList.add('hidden');
           statusSelectWrapper.classList.add('hidden');
           document.getElementById('modalTitle').innerText = id ? "Editar Mi Entrega de Tarea" : "Enviar Tarea de Alumno";
         }
-
         document.getElementById('lblTitle').innerText = "Nombre de la Tarea / Actividad";
       } else if (type === 'foro') {
-        weekFieldWrapper.classList.remove('hidden');
-        personaFields.classList.add('hidden');
-        courseAndStatusWrapper.classList.add('hidden');
-        scoreField.classList.add('hidden');
-        linkField.classList.remove('hidden');
         document.getElementById('modalTitle').innerText = id ? "Editar Publicación" : "Nueva Publicación del Foro";
         document.getElementById('lblTitle').innerText = "Título del Tema / Pregunta";
       } else {
-        weekFieldWrapper.classList.remove('hidden');
-        personaFields.classList.add('hidden');
-        courseAndStatusWrapper.classList.add('hidden');
-        scoreField.classList.add('hidden');
-        linkField.classList.remove('hidden');
-        
-        const typeNames = {
-          'documento': 'Documento',
-          'presentacion': 'Presentación',
-          'planificacion': 'Planificación'
-        };
+        const typeNames = { 'presentacion': 'Presentación', 'planificacion': 'Planificación' };
         const typeLabel = typeNames[type] || (type.charAt(0).toUpperCase() + type.slice(1));
         document.getElementById('modalTitle').innerText = id ? `Editar ${typeLabel}` : `Nueva ${typeLabel}`;
         document.getElementById('lblTitle').innerText = "Título / Nombre";
@@ -685,6 +754,11 @@
       const personEmail = document.getElementById('inputPersonEmail').value;
       const personRole = document.getElementById('inputPersonRole').value;
 
+      const docCategory = document.getElementById('inputDocCategory').value;
+      const autoria = document.getElementById('inputAutoria').value;
+      const authorName = document.getElementById('inputAuthor').value;
+      const siteOrigin = document.getElementById('inputOrigin').value;
+
       try {
         const targetCollection = collectionNames[type] || (type + "s");
 
@@ -700,6 +774,10 @@
           phone: phone || "",
           personEmail: personEmail || "",
           personRole: personRole || "Alumno",
+          docCategory: type === 'documento' ? docCategory : "",
+          autoria: (type === 'documento' || type === 'video') ? autoria : "",
+          authorName: (type === 'documento' || type === 'video') && autoria === 'Terceros' ? authorName : "",
+          siteOrigin: (type === 'documento' || type === 'video') && autoria === 'Terceros' ? siteOrigin : "",
           createdAt: new Date()
         };
 
@@ -843,6 +921,7 @@
           'personas': 'persona',
           'documentos': 'documento',
           'presentaciones': 'presentacion',
+          'videos': 'video',
           'planificaciones': 'planificacion',
           'notas': 'nota',
           'foro': 'foro'
@@ -899,41 +978,108 @@
                 <p class="text-xs text-slate-400 leading-relaxed whitespace-pre-line">${escapeHtml(data.desc || '')}</p>
               </div>
             `;
+          } else if (collectionName === 'documentos') {
+            const catColor = data.docCategory === 'Guía' ? 'bg-cyan-950 text-cyan-300 border-cyan-800/50' :
+                             data.docCategory === 'Ejemplo' ? 'bg-purple-950 text-purple-300 border-purple-800/50' :
+                             'bg-slate-800 text-slate-200 border-slate-700';
+
+            const autoriaBadge = data.autoria === 'Terceros' ? 
+              `<span class="bg-amber-950 text-amber-300 border border-amber-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="copyright" class="w-3 h-3"></i> Terceros</span>` :
+              `<span class="bg-emerald-950 text-emerald-300 border border-emerald-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> Propio</span>`;
+
+            let authorInfo = '';
+            if (data.autoria === 'Terceros' && (data.authorName || data.siteOrigin)) {
+              authorInfo = `
+                <div class="mt-2 text-[11px] text-amber-300/80 bg-amber-950/20 border border-amber-800/30 rounded-lg p-2 space-y-0.5">
+                  <p><strong>Autor:</strong> ${escapeHtml(data.authorName || 'Desconocido')}</p>
+                  <p><strong>Origen:</strong> ${escapeHtml(data.siteOrigin || 'No especificado')}</p>
+                </div>
+              `;
+            }
+
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="bg-violet-950 text-violet-300 border border-violet-800/50 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${escapeHtml(data.week || 'Semana 1')}</span>
+                      <span class="${catColor} border text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(data.docCategory || 'Documento')}</span>
+                      ${autoriaBadge}
+                    </div>
+                    <h3 class="font-bold text-white text-base leading-snug mt-2">${escapeHtml(data.title)}</h3>
+                  </div>
+                  ${actionButtons}
+                </div>
+
+                ${authorInfo}
+
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line mt-2">${escapeHtml(data.desc || '')}</p>
+              </div>
+              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Abrir Documento / Enlace</a>` : ''}
+            `;
+          } else if (collectionName === 'videos') {
+            const autoriaBadge = data.autoria === 'Terceros' ? 
+              `<span class="bg-amber-950 text-amber-300 border border-amber-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="copyright" class="w-3 h-3"></i> Terceros</span>` :
+              `<span class="bg-emerald-950 text-emerald-300 border border-emerald-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> Propio</span>`;
+
+            let authorInfo = '';
+            if (data.autoria === 'Terceros' && (data.authorName || data.siteOrigin)) {
+              authorInfo = `
+                <div class="mt-2 text-[11px] text-amber-300/80 bg-amber-950/20 border border-amber-800/30 rounded-lg p-2 space-y-0.5">
+                  <p><strong>Autor original:</strong> ${escapeHtml(data.authorName || 'Desconocido')}</p>
+                  <p><strong>Sitio de origen:</strong> ${escapeHtml(data.siteOrigin || 'No especificado')}</p>
+                </div>
+              `;
+            }
+
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="bg-violet-950 text-violet-300 border border-violet-800/50 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${escapeHtml(data.week || 'Semana 1')}</span>
+                      ${autoriaBadge}
+                    </div>
+                    <h3 class="font-bold text-white text-base leading-snug mt-2">${escapeHtml(data.title)}</h3>
+                  </div>
+                  ${actionButtons}
+                </div>
+
+                ${authorInfo}
+
+                <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line mt-2">${escapeHtml(data.desc || '')}</p>
+              </div>
+              ${data.link ? `<a href="${data.link}" target="_blank" class="mt-4 text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-rose-500"></i> Ver Vídeo</a>` : ''}
+            `;
           } else if (collectionName === 'notas') {
             const isCalificada = data.status === 'Calificada' || data.status === 'Completo';
-            
             const statusBadge = isCalificada 
               ? '<span class="bg-emerald-950 text-emerald-400 border border-emerald-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Calificada</span>' 
               : '<span class="bg-amber-950 text-amber-400 border border-amber-800/50 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> Pendiente de calificar</span>';
 
             const totalNota = typeof data.totalCalculado === 'number' ? data.totalCalculado : (parseFloat(data.score) || 0);
 
-            let evaluationBlock = '';
-            if (isCalificada) {
-              evaluationBlock = `
-                <div class="pt-2 border-t border-slate-800/80">
-                  <span class="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Criterios Evaluados por el Docente:</span>
-                  <div class="grid grid-cols-5 gap-1 text-center">
-                    <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C1</span><span class="text-xs font-semibold text-white">${crits.c1}</span></div>
-                    <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C2</span><span class="text-xs font-semibold text-white">${crits.c2}</span></div>
-                    <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C3</span><span class="text-xs font-semibold text-white">${crits.c3}</span></div>
-                    <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C4</span><span class="text-xs font-semibold text-white">${crits.c4}</span></div>
-                    <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C5</span><span class="text-xs font-semibold text-white">${crits.c5}</span></div>
-                  </div>
+            let evaluationBlock = isCalificada ? `
+              <div class="pt-2 border-t border-slate-800/80">
+                <span class="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Criterios Evaluados por el Docente:</span>
+                <div class="grid grid-cols-5 gap-1 text-center">
+                  <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C1</span><span class="text-xs font-semibold text-white">${crits.c1}</span></div>
+                  <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C2</span><span class="text-xs font-semibold text-white">${crits.c2}</span></div>
+                  <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C3</span><span class="text-xs font-semibold text-white">${crits.c3}</span></div>
+                  <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C4</span><span class="text-xs font-semibold text-white">${crits.c4}</span></div>
+                  <div class="bg-slate-950 p-1 rounded"><span class="block text-[9px] text-slate-500">C5</span><span class="text-xs font-semibold text-white">${crits.c5}</span></div>
                 </div>
+              </div>
 
-                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                  <span class="text-xs text-slate-400 font-semibold">Nota Asignada:</span>
-                  <span class="text-base font-black text-rose-400">${totalNota.toFixed(1)} / 100</span>
-                </div>
-              `;
-            } else {
-              evaluationBlock = `
-                <div class="pt-2 border-t border-slate-800/80 text-center py-2">
-                  <span class="text-xs text-slate-400 italic">Esperando evaluación del profesor...</span>
-                </div>
-              `;
-            }
+              <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold">Nota Asignada:</span>
+                <span class="text-base font-black text-rose-400">${totalNota.toFixed(1)} / 100</span>
+              </div>
+            ` : `
+              <div class="pt-2 border-t border-slate-800/80 text-center py-2">
+                <span class="text-xs text-slate-400 italic">Esperando evaluación del profesor...</span>
+              </div>
+            `;
 
             card.innerHTML = `
               <div>
@@ -954,7 +1100,6 @@
                     <span class="text-slate-400 font-semibold">Estatus de revisión:</span>
                     ${statusBadge}
                   </div>
-
                   ${evaluationBlock}
                 </div>
 
@@ -964,7 +1109,6 @@
             `;
           } else if (collectionName === 'foro') {
             const replies = data.replies || [];
-            
             const repliesHtml = replies.map(r => {
               const canDeleteReply = userRole === 'admin' || (currentUser && r.authorUid === currentUser.uid);
               const replyDate = r.createdAt ? new Date(r.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
@@ -1003,7 +1147,6 @@
                 <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line my-3">${escapeHtml(data.desc)}</p>
                 ${data.link ? `<a href="${data.link}" target="_blank" class="text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1 mb-3"><i data-lucide="external-link" class="w-3 h-3"></i> Recurso adjunto</a>` : ''}
 
-                <!-- SECCIÓN DE RESPUESTAS -->
                 <div class="mt-4 pt-4 border-t border-slate-800/80 space-y-3">
                   <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
@@ -1032,7 +1175,6 @@
               </div>
             `;
           } else {
-            // DOCUMENTOS, PRESENTACIONES Y PLANIFICACIONES
             const badgeClass = isGeneralPlan ? 'bg-amber-950 text-amber-300 border-amber-700/60' : 'bg-violet-950 text-violet-300 border-violet-800/50';
 
             card.innerHTML = `
